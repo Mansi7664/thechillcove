@@ -1,0 +1,1699 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Chill Cove | Clickable Menu, Feedback, Owner Orders</title>
+  <meta name="description" content="The Chill Cove public clickable menu, feedback form, and owner order dashboard." />
+  <style>
+    :root {
+      --bg: #f6fbff;
+      --card: #ffffff;
+      --ink: #122033;
+      --muted: #607083;
+      --brand: #00a6d6;
+      --brand2: #5ce1e6;
+      --accent: #ffbf47;
+      --danger: #cc3344;
+      --ok: #168a45;
+      --warn: #a16207;
+      --border: #d9e8ef;
+      --shadow: 0 18px 45px rgba(18, 32, 51, 0.10);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(92, 225, 230, 0.35), transparent 34rem),
+        radial-gradient(circle at top right, rgba(255, 191, 71, 0.24), transparent 28rem),
+        var(--bg);
+      line-height: 1.45;
+    }
+
+    a { color: inherit; }
+    .wrap { width: min(1160px, calc(100% - 28px)); margin: 0 auto; }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(14px);
+      background: rgba(246, 251, 255, 0.84);
+      border-bottom: 1px solid rgba(217, 232, 239, 0.78);
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      font-size: 1.08rem;
+    }
+
+    .logo {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      color: white;
+      background: linear-gradient(135deg, var(--brand), var(--brand2));
+      box-shadow: 0 10px 24px rgba(0, 166, 214, 0.28);
+      font-weight: 1000;
+    }
+
+    .navlinks {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .navlinks a, button, .btn { border: 0; text-decoration: none; cursor: pointer; font: inherit; }
+
+    .navlinks a, .pill {
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 9px 13px;
+      font-weight: 800;
+      font-size: 0.92rem;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.12fr 0.88fr;
+      gap: 24px;
+      align-items: center;
+      padding: 46px 0 24px;
+    }
+
+    .hero-card, .card {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(217, 232, 239, 0.94);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card {
+      padding: clamp(22px, 4vw, 44px);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: rgba(92, 225, 230, 0.22);
+      right: -90px;
+      bottom: -90px;
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(0, 166, 214, 0.10);
+      color: #067190;
+      font-weight: 900;
+      font-size: 0.86rem;
+      margin-bottom: 14px;
+    }
+
+    h1, h2, h3 { line-height: 1.06; letter-spacing: -0.04em; margin: 0; }
+    h1 { font-size: clamp(2.5rem, 7vw, 5rem); max-width: 740px; }
+    h2 { font-size: clamp(1.8rem, 4vw, 2.8rem); }
+    h3 { font-size: 1.2rem; }
+
+    .hero p, .section-head p { color: var(--muted); }
+    .hero p { font-size: 1.1rem; max-width: 660px; margin: 18px 0 0; }
+
+    .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; position: relative; z-index: 2; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 11px 16px;
+      border-radius: 15px;
+      font-weight: 900;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+    .btn.primary { color: white; background: linear-gradient(135deg, #008ec4, #00bfd6); box-shadow: 0 12px 24px rgba(0, 166, 214, 0.28); }
+    .btn.secondary { color: var(--ink); background: white; border: 1px solid var(--border); }
+    .btn.full { width: 100%; }
+    .btn.danger { color: white; background: var(--danger); }
+    .btn.ok { color: white; background: var(--ok); }
+    .btn.small-btn { min-height: 36px; padding: 8px 10px; border-radius: 12px; font-size: 0.86rem; }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+    section { padding: 30px 0; }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .section-head p { margin: 8px 0 0; max-width: 760px; }
+    .card { padding: 18px; }
+
+    .menu-grid { display: grid; grid-template-columns: 1fr; gap: 22px; }
+    .menu-board-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 8px 0 12px; }
+    .menu-board-title h3 { letter-spacing: -0.02em; }
+    .menu-board { position: relative; width: 100%; max-width: 1050px; margin: 0 auto; }
+    .menu-img { width: 100%; display: block; border-radius: var(--radius); border: 1px solid var(--border); background: white; box-shadow: var(--shadow); }
+    .menu-hotspot {
+      position: absolute;
+      z-index: 2;
+      display: block;
+      border: 2px solid transparent;
+      border-radius: 14px;
+      background: rgba(255, 191, 71, 0.00);
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .menu-hotspot:hover, .menu-hotspot:focus-visible {
+      background: rgba(255, 191, 71, 0.20);
+      border-color: rgba(255, 191, 71, 0.92);
+      box-shadow: inset 0 0 0 2px rgba(18, 32, 51, 0.14);
+      outline: 0;
+    }
+    .menu-hotspot::after {
+      content: "+ Add";
+      position: absolute;
+      right: 8px;
+      bottom: 8px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      color: #231305;
+      background: rgba(255, 191, 71, 0.96);
+      font-size: 0.76rem;
+      font-weight: 1000;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      pointer-events: none;
+    }
+    .menu-hotspot:hover::after, .menu-hotspot:focus-visible::after { opacity: 1; transform: translateY(0); }
+    .toast {
+      position: fixed;
+      z-index: 100;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%) translateY(18px);
+      padding: 12px 16px;
+      border-radius: 999px;
+      color: white;
+      background: rgba(18, 32, 51, 0.96);
+      font-weight: 900;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .split-layout { display: grid; grid-template-columns: 1fr 380px; gap: 18px; align-items: start; }
+    .summary { position: sticky; top: 82px; }
+
+    .category-title {
+      margin: 18px 0 10px;
+      font-size: 0.9rem;
+      font-weight: 1000;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #067190;
+    }
+    .category-title:first-child { margin-top: 0; }
+
+    .items { display: grid; gap: 10px; }
+    .item {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 12px;
+      align-items: center;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: #fbfdff;
+    }
+
+    .item-name { font-weight: 900; }
+    .item-desc { color: var(--muted); font-size: 0.88rem; margin-top: 2px; }
+    .price { font-weight: 900; white-space: nowrap; }
+
+    .qty { display: flex; align-items: center; gap: 6px; background: white; border: 1px solid var(--border); border-radius: 999px; padding: 5px; }
+    .qty button { width: 34px; height: 34px; border-radius: 50%; background: #eef9fc; color: var(--ink); font-weight: 900; }
+    .qty input { width: 38px; border: 0; text-align: center; font-weight: 900; background: transparent; color: var(--ink); font-size: 1rem; padding: 0; }
+
+    label { display: block; font-weight: 900; font-size: 0.9rem; margin-bottom: 6px; }
+    input, select, textarea { width: 100%; border: 1px solid var(--border); border-radius: 14px; padding: 12px 13px; font: inherit; color: var(--ink); background: white; }
+    textarea { min-height: 90px; resize: vertical; }
+    .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field { margin-bottom: 12px; }
+
+    .summary-row { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px dashed var(--border); }
+    .summary-row.total { border-bottom: 0; font-size: 1.35rem; font-weight: 1000; letter-spacing: -0.04em; }
+    .small { color: var(--muted); font-size: 0.86rem; }
+    .tiny { color: var(--muted); font-size: 0.78rem; }
+
+    .notice { border-radius: 16px; padding: 12px 14px; background: rgba(255, 191, 71, 0.18); border: 1px solid rgba(255, 191, 71, 0.52); font-size: 0.92rem; margin-top: 12px; }
+    .success { border-radius: 16px; padding: 12px 14px; background: rgba(22, 138, 69, 0.10); border: 1px solid rgba(22, 138, 69, 0.26); color: #0a612d; font-weight: 800; display: none; margin-top: 12px; white-space: pre-wrap; }
+    .error { border-radius: 16px; padding: 12px 14px; background: rgba(204, 51, 68, 0.10); border: 1px solid rgba(204, 51, 68, 0.24); color: #8b1f2d; font-weight: 800; display: none; margin-top: 12px; white-space: pre-wrap; }
+
+    .feedback-grid { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 18px; align-items: start; }
+    .rating { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .rating button { min-height: 44px; border-radius: 14px; background: #f8fcff; border: 1px solid var(--border); font-weight: 1000; }
+    .rating button.active { background: rgba(255, 191, 71, 0.28); border-color: var(--accent); }
+
+    .owner-panel { display: none; }
+    .owner-panel.visible { display: block; }
+    .owner-top { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+    .metric { background: #f8fcff; border: 1px solid var(--border); border-radius: 18px; padding: 14px; }
+    .metric strong { display: block; font-size: 1.4rem; letter-spacing: -0.04em; }
+    .metric span { color: var(--muted); font-size: 0.82rem; font-weight: 800; }
+
+    .table-wrap { overflow: auto; border: 1px solid var(--border); border-radius: 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; background: white; }
+    th, td { border-bottom: 1px solid var(--border); padding: 10px; text-align: left; vertical-align: top; }
+    th { background: #eef9fc; white-space: nowrap; }
+    tr:last-child td { border-bottom: 0; }
+
+    .status-badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 5px 9px; font-weight: 900; font-size: 0.78rem; }
+    .status-badge.done { background: rgba(22, 138, 69, 0.12); color: #0a612d; }
+    .status-badge.pending { background: rgba(255, 191, 71, 0.20); color: var(--warn); }
+
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    footer { color: var(--muted); text-align: center; padding: 36px 0 44px; }
+
+    @media (max-width: 980px) {
+      .hero, .split-layout, .feedback-grid { grid-template-columns: 1fr; }
+      .summary { position: static; }
+      .owner-top { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 640px) {
+      .nav { align-items: flex-start; }
+      .navlinks { display: none; }
+      .menu-grid, .field-grid { grid-template-columns: 1fr; }
+      .menu-hotspot::after { display: none; }
+      .item { grid-template-columns: 1fr; }
+      .section-head { display: block; }
+      .owner-top { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap nav">
+      <div class="brand"><div class="logo">TC</div><span>The Chill Cove</span></div>
+      <nav class="navlinks" aria-label="Main navigation">
+        <a href="#menu">Menu</a>
+        <a href="#feedback">Feedback</a>
+        <a href="#owner">Owner</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="hero-card">
+        <div class="eyebrow">Mocktails - Cold Coco - Fresh Chill Vibes</div>
+        <h1>Tap the menu. Build a selection. Tell the owner.</h1>
+        <p>Customers can view the original menu design, tap items for a personal selection preview, and leave feedback. Only the owner can create orders and later mark delivery or payment as done.</p>
+        <div class="cta-row">
+          <a class="btn primary" href="#menu">View menu</a>
+          <a class="btn secondary" href="#feedback">Give feedback</a>
+          <a class="btn secondary" href="#owner">Owner login</a>
+        </div>
+      </div>
+
+      <aside class="card">
+        <h3>How this site is split</h3>
+        <p class="small">Public visitors see only menu and feedback. Owner tools are behind a PIN and can save orders to a private Google Sheet.</p>
+        <div class="notice">Customer selection does not place an order. It only helps them calculate and show what they want.</div>
+      </aside>
+    </section>
+
+    <section id="menu">
+      <div class="section-head">
+        <div>
+          <h2>Menu</h2>
+          <p>The exact PNG menu designs are shown below. Customers can tap directly on menu items to add them to a selection preview without placing an order.</p>
+        </div>
+      </div>
+
+      <div class="menu-grid" aria-label="Clickable menu images">
+        <div class="card">
+          <div class="menu-board-title">
+            <h3>Cold Coco Menu</h3>
+            <span class="pill">Tap item to add</span>
+          </div>
+          <div class="menu-board">
+            <img class="menu-img" src="assets/cold-coco-menu.png" alt="The Chill Cove cold coco menu" />
+            <div id="coldCocoHotspots" class="hotspot-layer" aria-hidden="false"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="menu-board-title">
+            <h3>Mocktail Menu</h3>
+            <span class="pill">Tap item to add</span>
+          </div>
+          <div class="menu-board">
+            <img class="menu-img" src="assets/mocktail-menu.png" alt="The Chill Cove mocktail menu" />
+            <div id="mocktailHotspots" class="hotspot-layer" aria-hidden="false"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="split-layout" style="margin-top: 18px;">
+        <div class="card">
+          <h3>Quick add list</h3>
+          <p class="small">Tap directly on the image above, or use this list if a phone screen makes the menu image hard to tap. This is only a menu calculator.</p>
+          <div id="publicItems" class="items" style="margin-top: 14px;"></div>
+        </div>
+
+        <aside class="card summary">
+          <h3>Your selection</h3>
+          <div id="publicCartLines" class="small" style="margin-top: 10px;">No items selected yet.</div>
+          <div class="summary-row"><span>Subtotal</span><strong id="publicSubtotal">Rs 0</strong></div>
+          <div class="summary-row total"><span>Total</span><span id="publicTotal">Rs 0</span></div>
+          <button class="btn secondary full" type="button" id="copySelectionBtn">Copy selection</button>
+          <button class="btn secondary full" type="button" id="clearPublicBtn" style="margin-top: 10px;">Clear selection</button>
+          <div class="notice">No online order is submitted from here. Show this selection to the owner or place the order at the cart.</div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="feedback">
+      <div class="section-head">
+        <div>
+          <h2>Feedback</h2>
+          <p>A short feedback form for customer rating and recommendation.</p>
+        </div>
+      </div>
+      <div class="feedback-grid">
+        <div class="card">
+          <h3>Ask every happy customer</h3>
+          <p class="small">After handing the drink, ask them to scan and answer one quick question.</p>
+          <div class="notice">Best question: Would you recommend The Chill Cove to a friend?</div>
+        </div>
+        <form class="card" id="feedbackForm">
+          <div class="field-grid">
+            <div class="field">
+              <label for="feedbackName">Name</label>
+              <input id="feedbackName" name="feedbackName" placeholder="Optional" autocomplete="name" />
+            </div>
+            <div class="field">
+              <label for="feedbackMobile">Mobile</label>
+              <input id="feedbackMobile" name="feedbackMobile" placeholder="Optional" inputmode="tel" autocomplete="tel" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Rating</label>
+            <div class="rating" id="ratingButtons" aria-label="Choose a rating from 1 to 5"></div>
+          </div>
+          <div class="field">
+            <label for="recommend">Would you recommend us?</label>
+            <select id="recommend" name="recommend">
+              <option>Yes</option>
+              <option>Maybe</option>
+              <option>No</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="feedbackText">Comment</label>
+            <textarea id="feedbackText" name="feedbackText" placeholder="Taste, price, service, new flavour ideas..."></textarea>
+          </div>
+          <button class="btn ok full" type="submit">Submit feedback</button>
+          <div class="success" id="feedbackSuccess">Thank you for the feedback.</div>
+          <div class="error" id="feedbackError"></div>
+        </form>
+      </div>
+    </section>
+
+    <section id="owner">
+      <div class="section-head">
+        <div>
+          <h2>Owner dashboard</h2>
+          <p>Owner creates orders, then later marks two separate statuses: order delivered and payment done.</p>
+        </div>
+      </div>
+
+      <div class="card" id="ownerLoginCard">
+        <h3>Owner login</h3>
+        <p class="small">Use the PIN configured in Google Apps Script. Demo PIN works only before backend is connected.</p>
+        <form id="ownerLoginForm" class="field-grid" style="align-items: end; margin-top: 12px;">
+          <div class="field">
+            <label for="ownerPin">Owner PIN</label>
+            <input id="ownerPin" type="password" placeholder="Default demo: 1234" autocomplete="current-password" />
+          </div>
+          <div class="field">
+            <button class="btn primary full" type="submit">Open owner tools</button>
+          </div>
+        </form>
+        <div class="error" id="ownerLoginError"></div>
+      </div>
+
+      <div class="owner-panel" id="ownerPanel">
+        <div class="owner-top">
+          <div class="metric"><strong id="metricOrders">0</strong><span>Month orders</span></div>
+          <div class="metric"><strong id="metricSales">Rs 0</strong><span>Month sales</span></div>
+          <div class="metric"><strong id="metricPaid">Rs 0</strong><span>Payment done</span></div>
+          <div class="metric"><strong id="metricPending">Rs 0</strong><span>Payment pending</span></div>
+        </div>
+
+        <div class="split-layout">
+          <div class="card">
+            <div class="section-head" style="margin-bottom: 12px;">
+              <div>
+                <h3>Take customer order</h3>
+                <p class="small">Customer name is required. Mobile number is optional.</p>
+              </div>
+            </div>
+            <div id="ownerItems" class="items"></div>
+          </div>
+
+          <aside class="card summary">
+            <h3>Owner order bill</h3>
+            <form id="ownerOrderForm" style="margin-top: 12px;">
+              <div id="ownerCartLines" class="small" style="margin-bottom: 8px;">No items selected yet.</div>
+              <div class="summary-row"><span>Subtotal</span><strong id="ownerSubtotal">Rs 0</strong></div>
+              <div class="summary-row total"><span>Total</span><span id="ownerTotal">Rs 0</span></div>
+
+              <div class="field" style="margin-top: 12px;">
+                <label for="customerName">Customer name</label>
+                <input id="customerName" name="customerName" placeholder="Customer name" required autocomplete="name" />
+              </div>
+              <div class="field">
+                <label for="customerMobile">Mobile number</label>
+                <input id="customerMobile" name="customerMobile" placeholder="Optional" inputmode="tel" autocomplete="tel" />
+              </div>
+              <div class="field">
+                <label for="paymentMode">Payment mode</label>
+                <select id="paymentMode" name="paymentMode">
+                  <option>UPI</option>
+                  <option>Cash</option>
+                  <option>Card</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="field-grid">
+                <div class="field">
+                  <label><input id="paymentDone" type="checkbox" style="width:auto; margin-right: 7px;" /> Payment done</label>
+                </div>
+                <div class="field">
+                  <label><input id="orderDelivered" type="checkbox" style="width:auto; margin-right: 7px;" /> Order delivered</label>
+                </div>
+              </div>
+              <div class="field">
+                <label for="orderNotes">Notes</label>
+                <textarea id="orderNotes" placeholder="Less ice, parcel, extra chocolate, etc."></textarea>
+              </div>
+              <button class="btn primary full" type="submit">Save owner order</button>
+              <button class="btn secondary full" type="button" id="clearOwnerBtn" style="margin-top: 10px;">Clear order form</button>
+              <div class="success" id="orderSuccess"></div>
+              <div class="error" id="orderError"></div>
+            </form>
+          </aside>
+        </div>
+
+        <div class="card" style="margin-top: 18px;">
+          <div class="section-head" style="margin-bottom: 12px;">
+            <div>
+              <h3>Orders</h3>
+              <p class="small">Use the buttons to update delivery and payment status later.</p>
+            </div>
+            <div class="cta-row" style="margin: 0;">
+              <button class="btn secondary" type="button" id="refreshOrdersBtn">Refresh</button>
+              <button class="btn secondary" type="button" id="exportLocalBtn">Export local CSV</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Items</th>
+                  <th>Total</th>
+                  <th>Payment</th>
+                  <th>Delivery</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTable"><tr><td colspan="8">No orders loaded yet.</td></tr></tbody>
+            </table>
+          </div>
+          <div class="notice" id="backendNotice">Backend not connected yet. Orders are saved only on this device until Google Apps Script URL is added.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap">
+    &copy; <span id="year"></span> The Chill Cove. Menu and owner dashboard for mocktails and cold coco.
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const CONFIG = {
+      GOOGLE_SCRIPT_URL: "",
+      LOCAL_DEMO_PIN: "1234"
+    };
+
+    const MENU_ITEMS = [
+      {
+            id: "classic-cold-coco",
+            category: "Cold Coco - Classic Series",
+            name: "Classic Cold Coco",
+            desc: "Smooth, rich & perfectly chilled cocoa blend",
+            price: 80
+      },
+      {
+            id: "choco-chip-avalanche",
+            category: "Cold Coco - Flavour Series",
+            name: "Choco Chip Avalanche",
+            desc: "Cold coco + choco chips",
+            price: 100
+      },
+      {
+            id: "vanilla-frost-coco",
+            category: "Cold Coco - Flavour Series",
+            name: "Vanilla Frost Coco",
+            desc: "Cold coco + vanilla",
+            price: 100
+      },
+      {
+            id: "cream-crunch-coco",
+            category: "Cold Coco - Flavour Series",
+            name: "Cream Crunch Coco",
+            desc: "Cold coco + cookies & cream",
+            price: 100
+      },
+      {
+            id: "oreo-blizzard-coco",
+            category: "Cold Coco - Flavour Series",
+            name: "Oreo Blizzard Coco",
+            desc: "Cold coco + Oreo crush",
+            price: 100
+      },
+      {
+            id: "pie-crush-coco",
+            category: "Cold Coco - Flavour Series",
+            name: "Pie Crush Coco",
+            desc: "Cold coco + Chocopie blend",
+            price: 100
+      },
+      {
+            id: "nutty-royale-coco",
+            category: "Cold Coco - Flavour Series",
+            name: "Nutty Royale Coco",
+            desc: "Cold coco + premium dry fruits",
+            price: 100
+      },
+      {
+            id: "biscoff-bliss-coco",
+            category: "Cold Coco - Flavour Series",
+            name: "Biscoff Bliss Coco",
+            desc: "Cold coco + Biscoff crunch",
+            price: 100
+      },
+      {
+            id: "kitkat-crush-coco",
+            category: "Cold Coco - Flavour Series",
+            name: "KitKat Crush Coco",
+            desc: "Cold coco + KitKat chunks",
+            price: 100
+      },
+      {
+            id: "dark-fantasy-delight-coco",
+            category: "Cold Coco - Flavour Series",
+            name: "Dark Fantasy Delight Coco",
+            desc: "Cold coco + Dark Fantasy crumble",
+            price: 100
+      },
+      {
+            id: "oreo-vanilla-coco",
+            category: "Cold Coco - Royale Mix Series",
+            name: "Oreo Vanilla Coco",
+            desc: "Cold coco + Oreo + vanilla",
+            price: 120
+      },
+      {
+            id: "oreo-cookies-cream-coco",
+            category: "Cold Coco - Royale Mix Series",
+            name: "Oreo Cookies & Cream Coco",
+            desc: "Cold coco + Oreo + cookies & cream",
+            price: 120
+      },
+      {
+            id: "chocopie-vanilla-coco",
+            category: "Cold Coco - Royale Mix Series",
+            name: "Chocopie Vanilla Coco",
+            desc: "Cold coco + Chocopie + vanilla",
+            price: 120
+      },
+      {
+            id: "chocopie-cookies-cream-coco",
+            category: "Cold Coco - Royale Mix Series",
+            name: "Chocopie Cookies & Cream Coco",
+            desc: "Cold coco + Chocopie + cookies & cream",
+            price: 120
+      },
+      {
+            id: "brownie-vanilla-coco",
+            category: "Cold Coco - Royale Mix Series",
+            name: "Brownie Vanilla Coco",
+            desc: "Cold coco + Brownie + vanilla",
+            price: 120
+      },
+      {
+            id: "brownie-cookies-cream-coco",
+            category: "Cold Coco - Royale Mix Series",
+            name: "Brownie Cookies & Cream Coco",
+            desc: "Cold coco + Brownie + cookies & cream",
+            price: 120
+      },
+      {
+            id: "biscoff-vanilla-coco",
+            category: "Cold Coco - Royale Mix Series",
+            name: "Biscoff Vanilla Coco",
+            desc: "Cold coco + Biscoff + vanilla",
+            price: 120
+      },
+      {
+            id: "biscoff-cookies-cream-coco",
+            category: "Cold Coco - Royale Mix Series",
+            name: "Biscoff Cookies & Cream Coco",
+            desc: "Cold coco + Biscoff + cookies & cream",
+            price: 120
+      },
+      {
+            id: "the-cove-monster",
+            category: "Cold Coco - Signature Special",
+            name: "The Cove Monster",
+            desc: "Loaded premium cold coco experience",
+            price: 150
+      },
+      {
+            id: "topping-oreo-crumble",
+            category: "Cold Coco - Extra Toppings",
+            name: "Oreo Crumble",
+            desc: "Extra topping",
+            price: 20
+      },
+      {
+            id: "topping-choco-chips",
+            category: "Cold Coco - Extra Toppings",
+            name: "Choco Chips",
+            desc: "Extra topping",
+            price: 20
+      },
+      {
+            id: "topping-vanilla-scoop",
+            category: "Cold Coco - Extra Toppings",
+            name: "Vanilla Scoop",
+            desc: "Extra topping",
+            price: 30
+      },
+      {
+            id: "topping-dry-fruits",
+            category: "Cold Coco - Extra Toppings",
+            name: "Dry Fruits",
+            desc: "Extra topping",
+            price: 30
+      },
+      {
+            id: "pink-mirage",
+            category: "Mocktail - Crush Series",
+            name: "Pink Mirage",
+            desc: "Strawberry Crush",
+            price: 70
+      },
+      {
+            id: "kiwi-drift",
+            category: "Mocktail - Crush Series",
+            name: "Kiwi Drift",
+            desc: "Kiwi Crush",
+            price: 70
+      },
+      {
+            id: "citrus-glow",
+            category: "Mocktail - Crush Series",
+            name: "Citrus Glow",
+            desc: "Orange Crush",
+            price: 70
+      },
+      {
+            id: "tropical-rush",
+            category: "Mocktail - Crush Series",
+            name: "Tropical Rush",
+            desc: "Pineapple Crush",
+            price: 70
+      },
+      {
+            id: "green-pulse",
+            category: "Mocktail - Crush Series",
+            name: "Green Pulse",
+            desc: "Green Apple Crush",
+            price: 70
+      },
+      {
+            id: "purple-jam",
+            category: "Mocktail - Crush Series",
+            name: "Purple Jam",
+            desc: "Jamun Crush",
+            price: 70
+      },
+      {
+            id: "guava-blush",
+            category: "Mocktail - Crush Series",
+            name: "Guava Blush",
+            desc: "Guava Crush",
+            price: 70
+      },
+      {
+            id: "blue-velvet",
+            category: "Mocktail - Crush Series",
+            name: "Blue Velvet",
+            desc: "Blueberry Crush",
+            price: 70
+      },
+      {
+            id: "lychee-haze",
+            category: "Mocktail - Crush Series",
+            name: "Lychee Haze",
+            desc: "Litchi Crush",
+            price: 70
+      },
+      {
+            id: "minted-mist",
+            category: "Mocktail - Mojito Series",
+            name: "Minted Mist",
+            desc: "Classic Mint Mojito",
+            price: 80
+      },
+      {
+            id: "emerald-splash",
+            category: "Mocktail - Mojito Series",
+            name: "Emerald Splash",
+            desc: "Green Mint Mojito",
+            price: 80
+      },
+      {
+            id: "arctic-blue",
+            category: "Mocktail - Mojito Series",
+            name: "Arctic Blue",
+            desc: "Blue Curacao Mojito",
+            price: 80
+      },
+      {
+            id: "ruby-splash",
+            category: "Mocktail - Signature Series",
+            name: "Ruby Splash",
+            desc: "Strawberry + Green Apple",
+            price: 80
+      },
+      {
+            id: "midnight-jamun",
+            category: "Mocktail - Signature Series",
+            name: "Midnight Jamun",
+            desc: "Jamun + Blue Curacao",
+            price: 80
+      },
+      {
+            id: "tropical-thunder",
+            category: "Mocktail - Signature Series",
+            name: "Tropical Thunder",
+            desc: "Pineapple + Orange",
+            price: 80
+      },
+      {
+            id: "ocean-breeze",
+            category: "Mocktail - Signature Series",
+            name: "Ocean Breeze",
+            desc: "Blue Curacao + Pineapple",
+            price: 80
+      },
+      {
+            id: "kiwi-bliss",
+            category: "Mocktail - Signature Series",
+            name: "Kiwi Bliss",
+            desc: "Kiwi + Pineapple",
+            price: 80
+      },
+      {
+            id: "sunset-cooler",
+            category: "Mocktail - Signature Series",
+            name: "Sunset Cooler",
+            desc: "Strawberry + Orange",
+            price: 80
+      },
+      {
+            id: "frozen-emerald",
+            category: "Mocktail - Signature Series",
+            name: "Frozen Emerald",
+            desc: "Green Apple + Kiwi + Mint",
+            price: 80
+      },
+      {
+            id: "berry-storm",
+            category: "Mocktail - Signature Series",
+            name: "Berry Storm",
+            desc: "Strawberry + Kiwi",
+            price: 80
+      },
+      {
+            id: "tropic-mirage",
+            category: "Mocktail - Signature Series",
+            name: "Tropic Mirage",
+            desc: "Litchi + Pineapple",
+            price: 80
+      }
+];
+
+    const MENU_HOTSPOTS = {
+      "coldCoco": [
+            {
+                  id: "classic-cold-coco",
+                  x: 2.0,
+                  y: 19.2,
+                  w: 25.2,
+                  h: 29.5
+            },
+            {
+                  id: "choco-chip-avalanche",
+                  x: 28.3,
+                  y: 17.2,
+                  w: 16.0,
+                  h: 17.4
+            },
+            {
+                  id: "vanilla-frost-coco",
+                  x: 44.0,
+                  y: 17.2,
+                  w: 16.0,
+                  h: 17.4
+            },
+            {
+                  id: "cream-crunch-coco",
+                  x: 60.0,
+                  y: 17.2,
+                  w: 16.2,
+                  h: 17.4
+            },
+            {
+                  id: "oreo-blizzard-coco",
+                  x: 76.0,
+                  y: 17.2,
+                  w: 21.5,
+                  h: 17.4
+            },
+            {
+                  id: "pie-crush-coco",
+                  x: 28.3,
+                  y: 35.0,
+                  w: 16.0,
+                  h: 13.7
+            },
+            {
+                  id: "nutty-royale-coco",
+                  x: 44.0,
+                  y: 35.0,
+                  w: 16.0,
+                  h: 13.7
+            },
+            {
+                  id: "biscoff-bliss-coco",
+                  x: 60.0,
+                  y: 35.0,
+                  w: 16.0,
+                  h: 13.7
+            },
+            {
+                  id: "kitkat-crush-coco",
+                  x: 76.0,
+                  y: 35.0,
+                  w: 12.0,
+                  h: 13.7
+            },
+            {
+                  id: "dark-fantasy-delight-coco",
+                  x: 87.6,
+                  y: 35.0,
+                  w: 11.0,
+                  h: 13.7
+            },
+            {
+                  id: "the-cove-monster",
+                  x: 67.7,
+                  y: 55.5,
+                  w: 30.5,
+                  h: 35.9
+            },
+            {
+                  id: "oreo-vanilla-coco",
+                  x: 2.1,
+                  y: 67.1,
+                  w: 15.6,
+                  h: 11.6
+            },
+            {
+                  id: "oreo-cookies-cream-coco",
+                  x: 17.7,
+                  y: 67.1,
+                  w: 16.3,
+                  h: 11.6
+            },
+            {
+                  id: "chocopie-vanilla-coco",
+                  x: 34.0,
+                  y: 67.1,
+                  w: 16.7,
+                  h: 11.6
+            },
+            {
+                  id: "chocopie-cookies-cream-coco",
+                  x: 50.8,
+                  y: 67.1,
+                  w: 16.0,
+                  h: 11.6
+            },
+            {
+                  id: "brownie-vanilla-coco",
+                  x: 2.1,
+                  y: 79.3,
+                  w: 15.6,
+                  h: 11.8
+            },
+            {
+                  id: "brownie-cookies-cream-coco",
+                  x: 17.7,
+                  y: 79.3,
+                  w: 16.3,
+                  h: 11.8
+            },
+            {
+                  id: "biscoff-vanilla-coco",
+                  x: 34.0,
+                  y: 79.3,
+                  w: 16.7,
+                  h: 11.8
+            },
+            {
+                  id: "biscoff-cookies-cream-coco",
+                  x: 50.8,
+                  y: 79.3,
+                  w: 16.0,
+                  h: 11.8
+            },
+            {
+                  id: "topping-oreo-crumble",
+                  x: 2.2,
+                  y: 93.2,
+                  w: 15.0,
+                  h: 4.8
+            },
+            {
+                  id: "topping-choco-chips",
+                  x: 17.4,
+                  y: 93.2,
+                  w: 17.0,
+                  h: 4.8
+            },
+            {
+                  id: "topping-vanilla-scoop",
+                  x: 34.5,
+                  y: 93.2,
+                  w: 17.0,
+                  h: 4.8
+            },
+            {
+                  id: "topping-dry-fruits",
+                  x: 51.6,
+                  y: 93.2,
+                  w: 17.0,
+                  h: 4.8
+            }
+      ],
+      "mocktail": [
+            {
+                  id: "pink-mirage",
+                  x: 3.0,
+                  y: 15.5,
+                  w: 29.5,
+                  h: 10.2
+            },
+            {
+                  id: "kiwi-drift",
+                  x: 34.7,
+                  y: 15.5,
+                  w: 29.5,
+                  h: 10.2
+            },
+            {
+                  id: "citrus-glow",
+                  x: 66.1,
+                  y: 15.5,
+                  w: 29.5,
+                  h: 10.2
+            },
+            {
+                  id: "tropical-rush",
+                  x: 3.0,
+                  y: 26.2,
+                  w: 29.5,
+                  h: 10.2
+            },
+            {
+                  id: "green-pulse",
+                  x: 34.7,
+                  y: 26.2,
+                  w: 29.5,
+                  h: 10.2
+            },
+            {
+                  id: "purple-jam",
+                  x: 66.1,
+                  y: 26.2,
+                  w: 29.5,
+                  h: 10.2
+            },
+            {
+                  id: "guava-blush",
+                  x: 3.0,
+                  y: 37.0,
+                  w: 29.5,
+                  h: 10.2
+            },
+            {
+                  id: "blue-velvet",
+                  x: 34.7,
+                  y: 37.0,
+                  w: 29.5,
+                  h: 10.2
+            },
+            {
+                  id: "lychee-haze",
+                  x: 66.1,
+                  y: 37.0,
+                  w: 29.5,
+                  h: 10.2
+            },
+            {
+                  id: "minted-mist",
+                  x: 3.0,
+                  y: 52.3,
+                  w: 29.5,
+                  h: 10.2
+            },
+            {
+                  id: "emerald-splash",
+                  x: 34.7,
+                  y: 52.3,
+                  w: 29.5,
+                  h: 10.2
+            },
+            {
+                  id: "arctic-blue",
+                  x: 66.1,
+                  y: 52.3,
+                  w: 29.5,
+                  h: 10.2
+            },
+            {
+                  id: "ruby-splash",
+                  x: 3.0,
+                  y: 68.3,
+                  w: 29.5,
+                  h: 10.2
+            },
+            {
+                  id: "midnight-jamun",
+                  x: 34.7,
+                  y: 68.3,
+                  w: 29.5,
+                  h: 10.2
+            },
+            {
+                  id: "tropical-thunder",
+                  x: 66.1,
+                  y: 68.3,
+                  w: 29.5,
+                  h: 10.2
+            },
+            {
+                  id: "ocean-breeze",
+                  x: 3.0,
+                  y: 79.1,
+                  w: 29.5,
+                  h: 10.2
+            },
+            {
+                  id: "kiwi-bliss",
+                  x: 34.7,
+                  y: 79.1,
+                  w: 29.5,
+                  h: 10.2
+            },
+            {
+                  id: "sunset-cooler",
+                  x: 66.1,
+                  y: 79.1,
+                  w: 29.5,
+                  h: 10.2
+            },
+            {
+                  id: "frozen-emerald",
+                  x: 3.0,
+                  y: 89.8,
+                  w: 29.5,
+                  h: 9.8
+            },
+            {
+                  id: "berry-storm",
+                  x: 34.7,
+                  y: 89.8,
+                  w: 29.5,
+                  h: 9.8
+            },
+            {
+                  id: "tropic-mirage",
+                  x: 66.1,
+                  y: 89.8,
+                  w: 29.5,
+                  h: 9.8
+            }
+      ]
+};
+
+    const state = {
+      publicCart: {},
+      ownerCart: {},
+      rating: 5,
+      ownerUnlocked: false,
+      adminPinHash: "",
+      ownerOrders: []
+    };
+
+    MENU_ITEMS.forEach(item => {
+      state.publicCart[item.id] = 0;
+      state.ownerCart[item.id] = 0;
+    });
+
+    const store = {
+      get(key) { return JSON.parse(localStorage.getItem(key) || "[]"); },
+      set(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+    };
+
+    function money(value) {
+      return "₹" + Math.round(Number(value || 0)).toLocaleString("en-IN");
+    }
+
+    function escapeHtml(value) {
+      return String(value == null ? "" : value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function renderMenuHotspots() {
+      const boards = [
+        { containerId: "coldCocoHotspots", spots: MENU_HOTSPOTS.coldCoco },
+        { containerId: "mocktailHotspots", spots: MENU_HOTSPOTS.mocktail }
+      ];
+      boards.forEach(board => {
+        const container = document.getElementById(board.containerId);
+        if (!container) return;
+        container.innerHTML = board.spots.map(spot => {
+          const item = MENU_ITEMS.find(menuItem => menuItem.id === spot.id);
+          if (!item) return "";
+          return `<button type="button" class="menu-hotspot" style="left:${spot.x}%;top:${spot.y}%;width:${spot.w}%;height:${spot.h}%" data-cart-mode="public" data-action="inc" data-id="${escapeHtml(item.id)}" aria-label="Add ${escapeHtml(item.name)} to selection" title="Add ${escapeHtml(item.name)}"></button>`;
+        }).join("");
+      });
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 1250);
+    }
+
+    function makeOrderId() {
+      const now = new Date();
+      const pad = n => String(n).padStart(2, "0");
+      const stamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+      const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+      return `TCC-${stamp}-${rand}`;
+    }
+
+    function getCart(cart) {
+      return MENU_ITEMS
+        .map(item => ({ ...item, qty: Number(cart[item.id] || 0), lineTotal: Number(cart[item.id] || 0) * item.price }))
+        .filter(item => item.qty > 0);
+    }
+
+    function getTotals(cart) {
+      const items = getCart(cart);
+      const subtotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
+      return { items, subtotal, total: subtotal };
+    }
+
+    function groupByCategory(items) {
+      return items.reduce((groups, item) => {
+        if (!groups[item.category]) groups[item.category] = [];
+        groups[item.category].push(item);
+        return groups;
+      }, {});
+    }
+
+    function renderItemPicker(containerId, cart, mode) {
+      const container = document.getElementById(containerId);
+      const grouped = groupByCategory(MENU_ITEMS);
+      container.innerHTML = Object.keys(grouped).map(category => `
+        <div class="category-title">${escapeHtml(category)}</div>
+        ${grouped[category].map(item => `
+          <div class="item">
+            <div>
+              <div class="item-name">${escapeHtml(item.name)}</div>
+              <div class="item-desc">${escapeHtml(item.desc)}</div>
+            </div>
+            <div class="price">${money(item.price)}</div>
+            <div class="qty" aria-label="Quantity for ${escapeHtml(item.name)}">
+              <button type="button" data-cart-mode="${mode}" data-action="dec" data-id="${item.id}">-</button>
+              <input aria-label="${escapeHtml(item.name)} quantity" inputmode="numeric" min="0" value="${cart[item.id] || 0}" data-cart-mode="${mode}" data-id="${item.id}" />
+              <button type="button" data-cart-mode="${mode}" data-action="inc" data-id="${item.id}">+</button>
+            </div>
+          </div>
+        `).join("")}
+      `).join("");
+    }
+
+    function cartForMode(mode) {
+      return mode === "owner" ? state.ownerCart : state.publicCart;
+    }
+
+    function renderCart(mode) {
+      const cart = cartForMode(mode);
+      const totals = getTotals(cart);
+      const prefix = mode === "owner" ? "owner" : "public";
+      const linesEl = document.getElementById(`${prefix}CartLines`);
+      const subtotalEl = document.getElementById(`${prefix}Subtotal`);
+      const totalEl = document.getElementById(`${prefix}Total`);
+      subtotalEl.textContent = money(totals.subtotal);
+      totalEl.textContent = money(totals.total);
+      linesEl.innerHTML = totals.items.length
+        ? totals.items.map(item => `${item.qty} x ${escapeHtml(item.name)} = <strong>${money(item.lineTotal)}</strong>`).join("<br>")
+        : "No items selected yet.";
+    }
+
+    function renderAllCarts() {
+      renderItemPicker("publicItems", state.publicCart, "public");
+      renderItemPicker("ownerItems", state.ownerCart, "owner");
+      renderCart("public");
+      renderCart("owner");
+    }
+
+    document.addEventListener("click", event => {
+      const btn = event.target.closest("button[data-cart-mode][data-action]");
+      if (!btn) return;
+      const mode = btn.dataset.cartMode;
+      const cart = cartForMode(mode);
+      const current = Number(cart[btn.dataset.id] || 0);
+      cart[btn.dataset.id] = btn.dataset.action === "inc" ? current + 1 : Math.max(0, current - 1);
+      renderAllCarts();
+      if (btn.classList.contains("menu-hotspot")) {
+        const item = MENU_ITEMS.find(menuItem => menuItem.id === btn.dataset.id);
+        if (item) showToast(`${item.name} added`);
+      }
+    });
+
+    document.addEventListener("input", event => {
+      const input = event.target.closest("input[data-cart-mode]");
+      if (!input) return;
+      const cart = cartForMode(input.dataset.cartMode);
+      cart[input.dataset.id] = Math.max(0, Number.parseInt(input.value || "0", 10) || 0);
+      renderCart(input.dataset.cartMode);
+    });
+
+    function clearCart(mode) {
+      const cart = cartForMode(mode);
+      Object.keys(cart).forEach(key => { cart[key] = 0; });
+      renderAllCarts();
+    }
+
+    function orderTextFromCart(cart, customerName) {
+      const totals = getTotals(cart);
+      if (!totals.items.length) return "";
+      return [
+        "The Chill Cove selection",
+        customerName ? `Customer: ${customerName}` : "",
+        totals.items.map(item => `${item.qty} x ${item.name} - ${money(item.lineTotal)}`).join("\n"),
+        `Total: ${money(totals.total)}`
+      ].filter(Boolean).join("\n");
+    }
+
+    async function copyText(text) {
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+        alert("Copied selection.");
+      } catch (error) {
+        window.prompt("Copy this selection:", text);
+      }
+    }
+
+    async function sha256(text) {
+      if (!window.crypto || !crypto.subtle) return text;
+      const data = new TextEncoder().encode(text);
+      const hash = await crypto.subtle.digest("SHA-256", data);
+      return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    function jsonp(action, params = {}) {
+      return new Promise((resolve, reject) => {
+        if (!CONFIG.GOOGLE_SCRIPT_URL) return reject(new Error("Google Apps Script URL is not configured."));
+        const callbackName = "tcc_cb_" + Date.now() + "_" + Math.random().toString(36).slice(2);
+        const script = document.createElement("script");
+        const url = new URL(CONFIG.GOOGLE_SCRIPT_URL);
+        url.searchParams.set("action", action);
+        url.searchParams.set("callback", callbackName);
+        Object.keys(params).forEach(key => url.searchParams.set(key, params[key]));
+        window[callbackName] = data => {
+          delete window[callbackName];
+          script.remove();
+          resolve(data);
+        };
+        script.onerror = () => {
+          delete window[callbackName];
+          script.remove();
+          reject(new Error("Could not connect to Google Apps Script."));
+        };
+        script.src = url.toString();
+        document.body.appendChild(script);
+      });
+    }
+
+    async function postBackend(action, payload) {
+      if (!CONFIG.GOOGLE_SCRIPT_URL) return { sent: false };
+      await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action, ...payload })
+      });
+      return { sent: true };
+    }
+
+    function showMessage(id, text) {
+      const el = document.getElementById(id);
+      el.textContent = text;
+      el.style.display = text ? "block" : "none";
+    }
+
+    function hideMessages(...ids) {
+      ids.forEach(id => showMessage(id, ""));
+    }
+
+    function renderRatingButtons() {
+      const el = document.getElementById("ratingButtons");
+      el.innerHTML = [1, 2, 3, 4, 5].map(n => `<button type="button" class="${n === state.rating ? "active" : ""}" data-rating="${n}">${n} star</button>`).join("");
+    }
+
+    document.getElementById("ratingButtons").addEventListener("click", event => {
+      const btn = event.target.closest("button[data-rating]");
+      if (!btn) return;
+      state.rating = Number(btn.dataset.rating);
+      renderRatingButtons();
+    });
+
+    document.getElementById("feedbackForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      hideMessages("feedbackSuccess", "feedbackError");
+      const payload = {
+        date: new Date().toISOString(),
+        name: document.getElementById("feedbackName").value.trim(),
+        mobile: document.getElementById("feedbackMobile").value.trim(),
+        rating: state.rating,
+        recommend: document.getElementById("recommend").value,
+        comment: document.getElementById("feedbackText").value.trim()
+      };
+      const rows = store.get("feedback");
+      rows.push(payload);
+      store.set("feedback", rows);
+      try {
+        await postBackend("feedback", payload);
+        showMessage("feedbackSuccess", CONFIG.GOOGLE_SCRIPT_URL ? "Thank you. Your feedback was submitted." : "Thank you. Feedback saved on this device until backend is connected.");
+        event.target.reset();
+        state.rating = 5;
+        renderRatingButtons();
+      } catch (error) {
+        showMessage("feedbackError", "Feedback saved locally, but Google Sheet sync failed: " + error.message);
+      }
+    });
+
+    document.getElementById("copySelectionBtn").addEventListener("click", () => {
+      const text = orderTextFromCart(state.publicCart, "");
+      if (!text) return alert("Please select at least one item.");
+      copyText(text);
+    });
+
+    document.getElementById("clearPublicBtn").addEventListener("click", () => clearCart("public"));
+    document.getElementById("clearOwnerBtn").addEventListener("click", () => {
+      clearCart("owner");
+      document.getElementById("ownerOrderForm").reset();
+      hideMessages("orderSuccess", "orderError");
+    });
+
+    document.getElementById("ownerLoginForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      hideMessages("ownerLoginError");
+      const pin = document.getElementById("ownerPin").value;
+      if (!pin) return showMessage("ownerLoginError", "Please enter the owner PIN.");
+      try {
+        const hash = await sha256(pin);
+        if (CONFIG.GOOGLE_SCRIPT_URL) {
+          const res = await jsonp("checkAdmin", { pinHash: hash });
+          if (!res.ok) throw new Error(res.error || "Wrong PIN");
+        } else if (pin !== CONFIG.LOCAL_DEMO_PIN) {
+          throw new Error("Wrong demo PIN");
+        }
+        state.ownerUnlocked = true;
+        state.adminPinHash = hash;
+        document.getElementById("ownerPanel").classList.add("visible");
+        document.getElementById("ownerLoginCard").style.display = "none";
+        await loadOrders();
+      } catch (error) {
+        showMessage("ownerLoginError", error.message);
+      }
+    });
+
+    document.getElementById("ownerOrderForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      hideMessages("orderSuccess", "orderError");
+      const totals = getTotals(state.ownerCart);
+      if (!totals.items.length) return showMessage("orderError", "Please select at least one item.");
+      const customerName = document.getElementById("customerName").value.trim();
+      if (!customerName) return showMessage("orderError", "Customer name is required.");
+
+      const order = {
+        orderId: makeOrderId(),
+        date: new Date().toISOString(),
+        customerName,
+        mobile: document.getElementById("customerMobile").value.trim(),
+        items: totals.items,
+        itemsText: totals.items.map(item => `${item.qty} x ${item.name}`).join(", "),
+        subtotal: totals.subtotal,
+        discount: 0,
+        total: totals.total,
+        paymentMode: document.getElementById("paymentMode").value,
+        paymentDone: document.getElementById("paymentDone").checked,
+        delivered: document.getElementById("orderDelivered").checked,
+        notes: document.getElementById("orderNotes").value.trim()
+      };
+
+      const localOrders = store.get("orders");
+      localOrders.push(order);
+      store.set("orders", localOrders);
+
+      try {
+        await postBackend("createOrder", { ...order, pinHash: state.adminPinHash });
+        showMessage("orderSuccess", `${order.orderId} saved. ${CONFIG.GOOGLE_SCRIPT_URL ? "Sent to Google Sheet." : "Backend not connected, saved on this device."}`);
+        event.target.reset();
+        clearCart("owner");
+        await delay(700);
+        await loadOrders();
+      } catch (error) {
+        showMessage("orderError", "Order saved locally, but Google Sheet sync failed: " + error.message);
+        await loadOrders();
+      }
+    });
+
+    function delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function loadOrders() {
+      if (!state.ownerUnlocked) return;
+      let orders = [];
+      if (CONFIG.GOOGLE_SCRIPT_URL) {
+        try {
+          const res = await jsonp("listOrders", { pinHash: state.adminPinHash, limit: 500 });
+          if (!res.ok) throw new Error(res.error || "Could not load orders.");
+          orders = res.orders || [];
+          document.getElementById("backendNotice").textContent = "Connected to Google Sheet. Sheet access can stay limited to owner accounts.";
+        } catch (error) {
+          orders = store.get("orders");
+          document.getElementById("backendNotice").textContent = "Could not read Google Sheet, showing local orders only: " + error.message;
+        }
+      } else {
+        orders = store.get("orders");
+        document.getElementById("backendNotice").textContent = "Backend not connected yet. Orders are saved only on this device until Google Apps Script URL is added.";
+      }
+      state.ownerOrders = orders.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+      renderOrders();
+      renderOwnerMetrics();
+    }
+
+    function currentMonthOrders() {
+      const now = new Date();
+      return state.ownerOrders.filter(order => {
+        const d = new Date(order.date || order.timestamp || 0);
+        return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+      });
+    }
+
+    function renderOwnerMetrics() {
+      const orders = currentMonthOrders();
+      const sales = orders.reduce((sum, order) => sum + Number(order.total || 0), 0);
+      const paid = orders.filter(order => Boolean(order.paymentDone)).reduce((sum, order) => sum + Number(order.total || 0), 0);
+      document.getElementById("metricOrders").textContent = orders.length;
+      document.getElementById("metricSales").textContent = money(sales);
+      document.getElementById("metricPaid").textContent = money(paid);
+      document.getElementById("metricPending").textContent = money(sales - paid);
+    }
+
+    function statusBadge(done, doneText, pendingText) {
+      return done ? `<span class="status-badge done">${doneText}</span>` : `<span class="status-badge pending">${pendingText}</span>`;
+    }
+
+    function renderOrders() {
+      const tbody = document.getElementById("ordersTable");
+      const orders = state.ownerOrders.slice(0, 80);
+      if (!orders.length) {
+        tbody.innerHTML = `<tr><td colspan="8">No orders yet.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = orders.map(order => {
+        const time = order.date ? new Date(order.date).toLocaleString("en-IN") : "";
+        const items = order.itemsText || (order.items || []).map(item => `${item.qty} x ${item.name}`).join(", ");
+        return `
+          <tr>
+            <td>${escapeHtml(time)}</td>
+            <td><strong>${escapeHtml(order.orderId)}</strong></td>
+            <td>${escapeHtml(order.customerName || "Guest")}<br><span class="tiny">${escapeHtml(order.mobile || "")}</span></td>
+            <td>${escapeHtml(items)}${order.notes ? `<br><span class="tiny">Note: ${escapeHtml(order.notes)}</span>` : ""}</td>
+            <td><strong>${money(order.total)}</strong></td>
+            <td>${statusBadge(Boolean(order.paymentDone), "Payment done", "Payment pending")}<br><span class="tiny">${escapeHtml(order.paymentMode || "")}</span></td>
+            <td>${statusBadge(Boolean(order.delivered), "Delivered", "Not delivered")}</td>
+            <td>
+              <div class="actions">
+                <button class="btn small-btn ${order.paymentDone ? "secondary" : "ok"}" type="button" data-order-id="${escapeHtml(order.orderId)}" data-status-field="paymentDone" data-status-value="${order.paymentDone ? "false" : "true"}">${order.paymentDone ? "Mark unpaid" : "Mark paid"}</button>
+                <button class="btn small-btn ${order.delivered ? "secondary" : "primary"}" type="button" data-order-id="${escapeHtml(order.orderId)}" data-status-field="delivered" data-status-value="${order.delivered ? "false" : "true"}">${order.delivered ? "Undo delivery" : "Mark delivered"}</button>
+              </div>
+            </td>
+          </tr>`;
+      }).join("");
+    }
+
+    document.getElementById("ordersTable").addEventListener("click", async event => {
+      const btn = event.target.closest("button[data-status-field]");
+      if (!btn) return;
+      btn.disabled = true;
+      const orderId = btn.dataset.orderId;
+      const field = btn.dataset.statusField;
+      const value = btn.dataset.statusValue === "true";
+      try {
+        if (CONFIG.GOOGLE_SCRIPT_URL) {
+          const res = await jsonp("updateStatus", { pinHash: state.adminPinHash, orderId, field, value: String(value) });
+          if (!res.ok) throw new Error(res.error || "Status update failed.");
+        }
+        const localOrders = store.get("orders").map(order => order.orderId === orderId ? { ...order, [field]: value } : order);
+        store.set("orders", localOrders);
+        await loadOrders();
+      } catch (error) {
+        alert(error.message);
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById("refreshOrdersBtn").addEventListener("click", loadOrders);
+    document.getElementById("exportLocalBtn").addEventListener("click", () => downloadCsv(`the-chill-cove-local-orders-${todayKey()}.csv`, store.get("orders")));
+
+    function todayKey() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function downloadCsv(filename, rows) {
+      if (!rows.length) return alert("No local data to export yet.");
+      const headers = ["date", "orderId", "customerName", "mobile", "itemsText", "subtotal", "discount", "total", "paymentMode", "paymentDone", "delivered", "notes"];
+      const csv = [headers.join(","), ...rows.map(row => headers.map(key => {
+        const value = key === "itemsText" && !row[key] ? (row.items || []).map(item => `${item.qty} x ${item.name}`).join("; ") : String(row[key] == null ? "" : row[key]);
+        return `"${value.replace(/"/g, '""')}"`;
+      }).join(","))].join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+    renderMenuHotspots();
+    renderAllCarts();
+    renderRatingButtons();
+  </script>
+</body>
+</html>

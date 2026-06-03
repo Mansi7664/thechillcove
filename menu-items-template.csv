@@ -1,0 +1,45 @@
+Category,Item ID,Item Name,Description,Price,Active
+Cold Coco - Classic Series,classic-cold-coco,Classic Cold Coco,"Smooth, rich & perfectly chilled cocoa blend",80,TRUE
+Cold Coco - Flavour Series,choco-chip-avalanche,Choco Chip Avalanche,Cold coco + choco chips,100,TRUE
+Cold Coco - Flavour Series,vanilla-frost-coco,Vanilla Frost Coco,Cold coco + vanilla,100,TRUE
+Cold Coco - Flavour Series,cream-crunch-coco,Cream Crunch Coco,Cold coco + cookies & cream,100,TRUE
+Cold Coco - Flavour Series,oreo-blizzard-coco,Oreo Blizzard Coco,Cold coco + Oreo crush,100,TRUE
+Cold Coco - Flavour Series,pie-crush-coco,Pie Crush Coco,Cold coco + Chocopie blend,100,TRUE
+Cold Coco - Flavour Series,nutty-royale-coco,Nutty Royale Coco,Cold coco + premium dry fruits,100,TRUE
+Cold Coco - Flavour Series,biscoff-bliss-coco,Biscoff Bliss Coco,Cold coco + Biscoff crunch,100,TRUE
+Cold Coco - Flavour Series,kitkat-crush-coco,KitKat Crush Coco,Cold coco + KitKat chunks,100,TRUE
+Cold Coco - Flavour Series,dark-fantasy-delight-coco,Dark Fantasy Delight Coco,Cold coco + Dark Fantasy crumble,100,TRUE
+Cold Coco - Royale Mix Series,oreo-vanilla-coco,Oreo Vanilla Coco,Cold coco + Oreo + vanilla,120,TRUE
+Cold Coco - Royale Mix Series,oreo-cookies-cream-coco,Oreo Cookies & Cream Coco,Cold coco + Oreo + cookies & cream,120,TRUE
+Cold Coco - Royale Mix Series,chocopie-vanilla-coco,Chocopie Vanilla Coco,Cold coco + Chocopie + vanilla,120,TRUE
+Cold Coco - Royale Mix Series,chocopie-cookies-cream-coco,Chocopie Cookies & Cream Coco,Cold coco + Chocopie + cookies & cream,120,TRUE
+Cold Coco - Royale Mix Series,brownie-vanilla-coco,Brownie Vanilla Coco,Cold coco + Brownie + vanilla,120,TRUE
+Cold Coco - Royale Mix Series,brownie-cookies-cream-coco,Brownie Cookies & Cream Coco,Cold coco + Brownie + cookies & cream,120,TRUE
+Cold Coco - Royale Mix Series,biscoff-vanilla-coco,Biscoff Vanilla Coco,Cold coco + Biscoff + vanilla,120,TRUE
+Cold Coco - Royale Mix Series,biscoff-cookies-cream-coco,Biscoff Cookies & Cream Coco,Cold coco + Biscoff + cookies & cream,120,TRUE
+Cold Coco - Signature Special,the-cove-monster,The Cove Monster,Loaded premium cold coco experience,150,TRUE
+Cold Coco - Extra Toppings,topping-oreo-crumble,Oreo Crumble,Extra topping,20,TRUE
+Cold Coco - Extra Toppings,topping-choco-chips,Choco Chips,Extra topping,20,TRUE
+Cold Coco - Extra Toppings,topping-vanilla-scoop,Vanilla Scoop,Extra topping,30,TRUE
+Cold Coco - Extra Toppings,topping-dry-fruits,Dry Fruits,Extra topping,30,TRUE
+Mocktail - Crush Series,pink-mirage,Pink Mirage,Strawberry Crush,70,TRUE
+Mocktail - Crush Series,kiwi-drift,Kiwi Drift,Kiwi Crush,70,TRUE
+Mocktail - Crush Series,citrus-glow,Citrus Glow,Orange Crush,70,TRUE
+Mocktail - Crush Series,tropical-rush,Tropical Rush,Pineapple Crush,70,TRUE
+Mocktail - Crush Series,green-pulse,Green Pulse,Green Apple Crush,70,TRUE
+Mocktail - Crush Series,purple-jam,Purple Jam,Jamun Crush,70,TRUE
+Mocktail - Crush Series,guava-blush,Guava Blush,Guava Crush,70,TRUE
+Mocktail - Crush Series,blue-velvet,Blue Velvet,Blueberry Crush,70,TRUE
+Mocktail - Crush Series,lychee-haze,Lychee Haze,Litchi Crush,70,TRUE
+Mocktail - Mojito Series,minted-mist,Minted Mist,Classic Mint Mojito,80,TRUE
+Mocktail - Mojito Series,emerald-splash,Emerald Splash,Green Mint Mojito,80,TRUE
+Mocktail - Mojito Series,arctic-blue,Arctic Blue,Blue Curacao Mojito,80,TRUE
+Mocktail - Signature Series,ruby-splash,Ruby Splash,Strawberry + Green Apple,80,TRUE
+Mocktail - Signature Series,midnight-jamun,Midnight Jamun,Jamun + Blue Curacao,80,TRUE
+Mocktail - Signature Series,tropical-thunder,Tropical Thunder,Pineapple + Orange,80,TRUE
+Mocktail - Signature Series,ocean-breeze,Ocean Breeze,Blue Curacao + Pineapple,80,TRUE
+Mocktail - Signature Series,kiwi-bliss,Kiwi Bliss,Kiwi + Pineapple,80,TRUE
+Mocktail - Signature Series,sunset-cooler,Sunset Cooler,Strawberry + Orange,80,TRUE
+Mocktail - Signature Series,frozen-emerald,Frozen Emerald,Green Apple + Kiwi + Mint,80,TRUE
+Mocktail - Signature Series,berry-storm,Berry Storm,Strawberry + Kiwi,80,TRUE
+Mocktail - Signature Series,tropic-mirage,Tropic Mirage,Litchi + Pineapple,80,TRUE
