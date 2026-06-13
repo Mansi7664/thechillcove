@@ -244,6 +244,7 @@
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     .split-layout { display: grid; grid-template-columns: 1fr 380px; gap: 18px; align-items: start; }
+    .photo-only-layout { grid-template-columns: minmax(280px, 430px); }
     .summary { position: sticky; top: 82px; }
 
     .category-title {
@@ -396,13 +397,7 @@
         </div>
       </div>
 
-      <div class="split-layout" style="margin-top: 18px;">
-        <div class="card">
-          <h3>Quick add list</h3>
-          <p class="small">Tap directly on the image above, or use this list if a phone screen makes the menu image hard to tap. This is only a menu calculator.</p>
-          <div id="publicItems" class="items" style="margin-top: 14px;"></div>
-        </div>
-
+      <div class="split-layout photo-only-layout" style="margin-top: 18px;">
         <aside class="card summary">
           <h3>Your selection</h3>
           <div id="publicCartLines" class="small" style="margin-top: 10px;">No items selected yet.</div>
@@ -483,6 +478,29 @@
           </div>
         </form>
         <div class="error" id="ownerLoginError"></div>
+        <div class="notice" style="margin-top: 14px;">Forgot PIN? Send an OTP to the owner email configured in Google Apps Script, then set a new PIN.</div>
+        <div class="field-grid" style="align-items: end; margin-top: 12px;">
+          <div class="field">
+            <button class="btn secondary full" type="button" id="requestOtpBtn">Send reset OTP</button>
+          </div>
+          <div class="field">
+            <label for="resetOtp">OTP</label>
+            <input id="resetOtp" inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit OTP" />
+          </div>
+          <div class="field">
+            <label for="newOwnerPin">New owner PIN</label>
+            <input id="newOwnerPin" type="password" autocomplete="new-password" placeholder="New PIN" />
+          </div>
+          <div class="field">
+            <label for="confirmOwnerPin">Confirm new PIN</label>
+            <input id="confirmOwnerPin" type="password" autocomplete="new-password" placeholder="Confirm PIN" />
+          </div>
+          <div class="field">
+            <button class="btn ok full" type="button" id="resetPinBtn">Reset PIN with OTP</button>
+          </div>
+        </div>
+        <div class="success" id="ownerResetSuccess"></div>
+        <div class="error" id="ownerResetError"></div>
       </div>
 
       <div class="owner-panel" id="ownerPanel">
@@ -497,11 +515,32 @@
           <div class="card">
             <div class="section-head" style="margin-bottom: 12px;">
               <div>
-                <h3>Take customer order</h3>
-                <p class="small">Customer name is required. Mobile number is optional.</p>
+                <h3>Take customer order from photo menu</h3>
+                <p class="small">Tap items on the menu photos below. Customer name is required. Mobile number is optional.</p>
               </div>
             </div>
-            <div id="ownerItems" class="items"></div>
+            <div class="menu-grid" aria-label="Owner clickable menu images">
+              <div>
+                <div class="menu-board-title">
+                  <h3>Cold Coco Menu</h3>
+                  <span class="pill">Tap item to add</span>
+                </div>
+                <div class="menu-board">
+                  <img class="menu-img" src="assets/cold-coco-menu.png" alt="The Chill Cove cold coco menu" />
+                  <div id="ownerColdCocoHotspots" class="hotspot-layer" aria-hidden="false"></div>
+                </div>
+              </div>
+              <div>
+                <div class="menu-board-title">
+                  <h3>Mocktail Menu</h3>
+                  <span class="pill">Tap item to add</span>
+                </div>
+                <div class="menu-board">
+                  <img class="menu-img" src="assets/mocktail-menu.png" alt="The Chill Cove mocktail menu" />
+                  <div id="ownerMocktailHotspots" class="hotspot-layer" aria-hidden="false"></div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <aside class="card summary">
@@ -590,11 +629,12 @@
 
   <script>
     const CONFIG = {
+      // Paste your deployed Google Apps Script Web app URL here to sync orders, feedback, and menu items across all devices.
       GOOGLE_SCRIPT_URL: "",
       LOCAL_DEMO_PIN: "1234"
     };
 
-    const MENU_ITEMS = [
+    let MENU_ITEMS = [
       {
             id: "classic-cold-coco",
             category: "Cold Coco - Classic Series",
@@ -1229,10 +1269,14 @@
       ownerOrders: []
     };
 
-    MENU_ITEMS.forEach(item => {
-      state.publicCart[item.id] = 0;
-      state.ownerCart[item.id] = 0;
-    });
+    function syncCartKeys() {
+      const activeIds = new Set(MENU_ITEMS.map(item => item.id));
+      [state.publicCart, state.ownerCart].forEach(cart => {
+        Object.keys(cart).forEach(id => { if (!activeIds.has(id)) delete cart[id]; });
+        MENU_ITEMS.forEach(item => { if (cart[item.id] == null) cart[item.id] = 0; });
+      });
+    }
+    syncCartKeys();
 
     const store = {
       get(key) { return JSON.parse(localStorage.getItem(key) || "[]"); },
@@ -1254,8 +1298,10 @@
 
     function renderMenuHotspots() {
       const boards = [
-        { containerId: "coldCocoHotspots", spots: MENU_HOTSPOTS.coldCoco },
-        { containerId: "mocktailHotspots", spots: MENU_HOTSPOTS.mocktail }
+        { containerId: "coldCocoHotspots", spots: MENU_HOTSPOTS.coldCoco, mode: "public" },
+        { containerId: "mocktailHotspots", spots: MENU_HOTSPOTS.mocktail, mode: "public" },
+        { containerId: "ownerColdCocoHotspots", spots: MENU_HOTSPOTS.coldCoco, mode: "owner" },
+        { containerId: "ownerMocktailHotspots", spots: MENU_HOTSPOTS.mocktail, mode: "owner" }
       ];
       boards.forEach(board => {
         const container = document.getElementById(board.containerId);
@@ -1263,7 +1309,7 @@
         container.innerHTML = board.spots.map(spot => {
           const item = MENU_ITEMS.find(menuItem => menuItem.id === spot.id);
           if (!item) return "";
-          return `<button type="button" class="menu-hotspot" style="left:${spot.x}%;top:${spot.y}%;width:${spot.w}%;height:${spot.h}%" data-cart-mode="public" data-action="inc" data-id="${escapeHtml(item.id)}" aria-label="Add ${escapeHtml(item.name)} to selection" title="Add ${escapeHtml(item.name)}"></button>`;
+          return `<button type="button" class="menu-hotspot" style="left:${spot.x}%;top:${spot.y}%;width:${spot.w}%;height:${spot.h}%" data-cart-mode="${board.mode}" data-action="inc" data-id="${escapeHtml(item.id)}" aria-label="Add ${escapeHtml(item.name)} to selection" title="Add ${escapeHtml(item.name)}"></button>`;
         }).join("");
       });
     }
@@ -1305,28 +1351,6 @@
       }, {});
     }
 
-    function renderItemPicker(containerId, cart, mode) {
-      const container = document.getElementById(containerId);
-      const grouped = groupByCategory(MENU_ITEMS);
-      container.innerHTML = Object.keys(grouped).map(category => `
-        <div class="category-title">${escapeHtml(category)}</div>
-        ${grouped[category].map(item => `
-          <div class="item">
-            <div>
-              <div class="item-name">${escapeHtml(item.name)}</div>
-              <div class="item-desc">${escapeHtml(item.desc)}</div>
-            </div>
-            <div class="price">${money(item.price)}</div>
-            <div class="qty" aria-label="Quantity for ${escapeHtml(item.name)}">
-              <button type="button" data-cart-mode="${mode}" data-action="dec" data-id="${item.id}">-</button>
-              <input aria-label="${escapeHtml(item.name)} quantity" inputmode="numeric" min="0" value="${cart[item.id] || 0}" data-cart-mode="${mode}" data-id="${item.id}" />
-              <button type="button" data-cart-mode="${mode}" data-action="inc" data-id="${item.id}">+</button>
-            </div>
-          </div>
-        `).join("")}
-      `).join("");
-    }
-
     function cartForMode(mode) {
       return mode === "owner" ? state.ownerCart : state.publicCart;
     }
@@ -1346,10 +1370,10 @@
     }
 
     function renderAllCarts() {
-      renderItemPicker("publicItems", state.publicCart, "public");
-      renderItemPicker("ownerItems", state.ownerCart, "owner");
+      syncCartKeys();
       renderCart("public");
       renderCart("owner");
+      renderMenuHotspots();
     }
 
     document.addEventListener("click", event => {
@@ -1443,6 +1467,37 @@
       return { sent: true };
     }
 
+    function normalizeMenuItem(item) {
+      return {
+        id: String(item.id || item.itemId || "").trim(),
+        category: String(item.category || "Menu"),
+        name: String(item.name || item.itemName || ""),
+        desc: String(item.desc || item.description || ""),
+        price: Number(item.price || 0)
+      };
+    }
+
+    async function loadMenuItems() {
+      if (!CONFIG.GOOGLE_SCRIPT_URL) return;
+      try {
+        const res = await jsonp("listMenuItems");
+        if (!res.ok) throw new Error(res.error || "Could not load menu items.");
+        const loaded = (res.menuItems || []).map(normalizeMenuItem).filter(item => item.id && item.name && item.price >= 0);
+        if (loaded.length) {
+          MENU_ITEMS = loaded;
+          store.set("menuItems", loaded);
+          renderAllCarts();
+        }
+      } catch (error) {
+        const cached = store.get("menuItems");
+        if (cached.length) {
+          MENU_ITEMS = cached.map(normalizeMenuItem).filter(item => item.id);
+          renderAllCarts();
+        }
+        console.warn("Menu sync failed:", error.message);
+      }
+    }
+
     function showMessage(id, text) {
       const el = document.getElementById(id);
       el.textContent = text;
@@ -1501,6 +1556,41 @@
       clearCart("owner");
       document.getElementById("ownerOrderForm").reset();
       hideMessages("orderSuccess", "orderError");
+    });
+
+    document.getElementById("requestOtpBtn").addEventListener("click", async () => {
+      hideMessages("ownerResetSuccess", "ownerResetError");
+      if (!CONFIG.GOOGLE_SCRIPT_URL) return showMessage("ownerResetError", "Connect Google Apps Script first. OTP reset needs the backend.");
+      try {
+        const res = await jsonp("requestAdminResetOtp");
+        if (!res.ok) throw new Error(res.error || "Could not send OTP.");
+        showMessage("ownerResetSuccess", "OTP sent to the configured owner email.");
+      } catch (error) {
+        showMessage("ownerResetError", error.message);
+      }
+    });
+
+    document.getElementById("resetPinBtn").addEventListener("click", async () => {
+      hideMessages("ownerResetSuccess", "ownerResetError");
+      if (!CONFIG.GOOGLE_SCRIPT_URL) return showMessage("ownerResetError", "Connect Google Apps Script first. OTP reset needs the backend.");
+      const otp = document.getElementById("resetOtp").value.trim();
+      const newPin = document.getElementById("newOwnerPin").value;
+      const confirmPin = document.getElementById("confirmOwnerPin").value;
+      if (!/^\d{6}$/.test(otp)) return showMessage("ownerResetError", "Enter the 6-digit OTP.");
+      if (!newPin || newPin.length < 4) return showMessage("ownerResetError", "New PIN must be at least 4 characters.");
+      if (newPin !== confirmPin) return showMessage("ownerResetError", "New PIN and confirm PIN do not match.");
+      try {
+        const res = await jsonp("resetAdminPinWithOtp", { otpHash: await sha256(otp), newPinHash: await sha256(newPin) });
+        if (!res.ok) throw new Error(res.error || "PIN reset failed.");
+        state.adminPinHash = "";
+        document.getElementById("ownerPin").value = "";
+        document.getElementById("resetOtp").value = "";
+        document.getElementById("newOwnerPin").value = "";
+        document.getElementById("confirmOwnerPin").value = "";
+        showMessage("ownerResetSuccess", "Owner PIN reset. Sign in with the new PIN.");
+      } catch (error) {
+        showMessage("ownerResetError", error.message);
+      }
     });
 
     document.getElementById("ownerLoginForm").addEventListener("submit", async event => {
@@ -1691,9 +1781,9 @@
     }
 
     document.getElementById("year").textContent = new Date().getFullYear();
-    renderMenuHotspots();
     renderAllCarts();
     renderRatingButtons();
+    loadMenuItems();
   </script>
 </body>
 </html>

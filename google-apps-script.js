@@ -5,16 +5,19 @@
   1. Create a Google Sheet.
   2. Open Extensions > Apps Script.
   3. Paste this file into Code.gs.
-  4. Change DEFAULT_ADMIN_PIN below.
+  4. Change DEFAULT_ADMIN_PIN and ADMIN_RESET_EMAIL below.
   5. Run setupChillCove once and authorize.
   6. Deploy as Web app:
      - Execute as: Me
      - Who has access: Anyone
   7. Copy the Web app URL into CONFIG.GOOGLE_SCRIPT_URL in index.html.
+  8. Edit the Menu Items sheet to sync names/prices/active items across all devices.
 */
 
 var SPREADSHEET_ID = ""; // Optional. Leave blank when this script is bound to your Google Sheet.
-var DEFAULT_ADMIN_PIN = "1234"; // Change this before going live, then run resetOwnerPin.
+var DEFAULT_ADMIN_PIN = "Manan#12092003"; // Change this before going live, then run resetOwnerPin.
+var ADMIN_RESET_EMAIL = "manansarikhada1@gmail.com"; // Required for OTP reset. Example: owner@example.com
+var ADMIN_OTP_EXPIRY_MINUTES = 10;
 
 var SHEETS = {
   ORDERS: "Orders",
@@ -100,6 +103,9 @@ function doGet(e) {
     var action = String(params.action || "");
     if (action === "ping") result = { ok: true, message: "The Chill Cove backend is running." };
     else if (action === "checkAdmin") result = checkAdmin_(params);
+    else if (action === "listMenuItems") result = listMenuItems_(params);
+    else if (action === "requestAdminResetOtp") result = requestAdminResetOtp_(params);
+    else if (action === "resetAdminPinWithOtp") result = resetAdminPinWithOtp_(params);
     else if (action === "listOrders") result = listOrders_(params);
     else if (action === "updateStatus") result = updateStatus_(params);
     else if (action === "listFeedback") result = listFeedback_(params);
@@ -582,6 +588,80 @@ function checkAdmin_(params) {
   verifyAdmin_(params.pinHash);
   return { ok: true };
 }
+function listMenuItems_(params) {
+  var ss = getSpreadsheet_();
+  ensureSheets_(ss);
+  var sheet = ss.getSheetByName(SHEETS.MENU_ITEMS);
+  var values = sheet.getDataRange().getValues();
+  if (values.length <= 1) return { ok: true, menuItems: [] };
+  var headers = values[0];
+  var map = headerMap_(headers);
+  var rows = values.slice(1).filter(function(row) {
+    return row[map["Item ID"]] && asBoolean_(row[map["Active"]]);
+  });
+  var menuItems = rows.map(function(row) {
+    return {
+      category: String(row[map["Category"]] || ""),
+      id: String(row[map["Item ID"]] || ""),
+      name: String(row[map["Item Name"]] || ""),
+      desc: String(row[map["Description"]] || ""),
+      price: Number(row[map["Price"]] || 0)
+    };
+  });
+  return { ok: true, menuItems: menuItems };
+}
+
+function requestAdminResetOtp_(params) {
+  if (!ADMIN_RESET_EMAIL) throw new Error("ADMIN_RESET_EMAIL is not configured in Apps Script.");
+  var otp = String(Math.floor(100000 + Math.random() * 900000));
+  var props = PropertiesService.getScriptProperties();
+  props.setProperty("ADMIN_RESET_OTP_HASH", sha256Hex_(otp));
+  props.setProperty("ADMIN_RESET_OTP_EXPIRES", String(Date.now() + ADMIN_OTP_EXPIRY_MINUTES * 60 * 1000));
+  props.setProperty("ADMIN_RESET_OTP_ATTEMPTS", "0");
+  MailApp.sendEmail({
+    to: ADMIN_RESET_EMAIL,
+    subject: "The Chill Cove owner PIN reset OTP",
+    body: "Your The Chill Cove owner PIN reset OTP is " + otp + ". It expires in " + ADMIN_OTP_EXPIRY_MINUTES + " minutes. If you did not request this, ignore this email."
+  });
+  return { ok: true, sent: true };
+}
+
+function resetAdminPinWithOtp_(params) {
+  var otpHash = String(params.otpHash || "");
+  var newPinHash = String(params.newPinHash || "");
+  if (!otpHash || !newPinHash) throw new Error("Missing OTP or new PIN.");
+  if (!/^[a-f0-9]{64}$/.test(newPinHash)) throw new Error("Invalid new PIN hash.");
+
+  var props = PropertiesService.getScriptProperties();
+  var savedOtpHash = props.getProperty("ADMIN_RESET_OTP_HASH");
+  var expires = Number(props.getProperty("ADMIN_RESET_OTP_EXPIRES") || 0);
+  var attempts = Number(props.getProperty("ADMIN_RESET_OTP_ATTEMPTS") || 0);
+  if (!savedOtpHash || !expires) throw new Error("No active OTP. Request a new OTP first.");
+  if (Date.now() > expires) {
+    clearAdminResetOtp_();
+    throw new Error("OTP expired. Request a new OTP.");
+  }
+  if (attempts >= 5) {
+    clearAdminResetOtp_();
+    throw new Error("Too many OTP attempts. Request a new OTP.");
+  }
+  if (otpHash !== savedOtpHash) {
+    props.setProperty("ADMIN_RESET_OTP_ATTEMPTS", String(attempts + 1));
+    throw new Error("Invalid OTP.");
+  }
+
+  props.setProperty("ADMIN_PIN_HASH", newPinHash);
+  clearAdminResetOtp_();
+  return { ok: true, reset: true };
+}
+
+function clearAdminResetOtp_() {
+  var props = PropertiesService.getScriptProperties();
+  props.deleteProperty("ADMIN_RESET_OTP_HASH");
+  props.deleteProperty("ADMIN_RESET_OTP_EXPIRES");
+  props.deleteProperty("ADMIN_RESET_OTP_ATTEMPTS");
+}
+
 
 function listOrders_(params) {
   verifyAdmin_(params.pinHash);
